@@ -15,20 +15,14 @@ var Spotify = require("node-spotify-api");
 var client = new Twitter(keys.twitter);
 var spotify = new Spotify(keys.spotify);
 
+process.argv.shift();
+process.argv.shift();
 
-//store all arguments in an array
-var nodeArgs = process.argv;
+//command to execute a function
+var command = process.argv[0];
 
-var command = "";
-
-// commands: my-tweets, spotify-this-song, movie-this, do-what-it-says
-
-for (var i = 2; i < nodeArgs.length; i++) {
-	command = command + " " + nodeArgs[i];
-}
-
-console.log("Command: " + command);
-
+//title of song or movie
+var title = process.argv[1];
 
 //this switch-case will direct which function gets run
 // switch(command) {
@@ -99,7 +93,10 @@ function spotify(song) {
 // Title, year, IMDB rating, rotten tomatoes rating, country produced, lang, plot, actors
 //default: If you haven't watched "Mr. Nobody," then you should: http://www.imdb.com/title/tt0485947/ It's on Netflix!
 
-function movie(movieName) {
+// function movie(movieName) {
+
+if (command==="movie-this") {
+
 	var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
 
 	console.log(queryUrl);
@@ -113,4 +110,5 @@ function movie(movieName) {
 	    //Title, Year, Actors, Plot, Language, Country, Ratings.imdbRating, Ratings.1
 	  }
 	});
-}; //end movie function
+}
+//}; end movie function
