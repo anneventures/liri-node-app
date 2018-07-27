@@ -1,9 +1,6 @@
 require("dotenv").config();
 
-
-//import keys.js file stored in variable
 var keys = require("./keys.js");
-
 
 //node packages
 var fs = require("fs");
@@ -11,45 +8,48 @@ var request = require("request");
 var Twitter = require("twitter");
 var Spotify = require("node-spotify-api");
 
-//pass the config (keys) of Twitter and Spotify apps in keys.js to 'Twitter' and 'Spotify', respectively
 var client = new Twitter(keys.twitter);
 var spotify = new Spotify(keys.spotify);
 
+//take out first and second array index
 process.argv.shift();
 process.argv.shift();
 
-//command to execute a function
+//set array placement of command and song/movie titles
 var command = process.argv[0];
+var songTitle = JSON.stringify(process.argv[1]);
+var movieTitle = process.argv[1];
 
-//title of song or movie
-var title = process.argv[1];
 
-//this switch-case will direct which function gets run
-// switch(command) {
-// 	case "my-tweets":
-// 	tweets();
-// 	break;
+switch(command) {
+	case "my-tweets":
+		tweets();
+	break;
 
-// 	case "spotify-this-song":
-//	if else here...
-// 	spotify(song);
-// 	break;
+	case "spotify-this-song":
+		if (songTitle) {
+			spotifySong(songTitle);
+		} else {
+			spotifySong("The Sign"); //needs to be Ace of Base artist
+		}
+	break;
 
-// 	case "movie-this":
-// 	movie(movieName);
-//	if else here...
-// 	break;
+	case "movie-this":
+		if (movieTitle) {
+			movie(movieTitle)
+		} else {
+			console.log("If you haven't watched 'Mr. Nobody,' then you should: http://www.imdb.com/title/tt0485947/ It's on Netflix!");
+		}
+	break;
 
-// 	case "do-what-it-says":
-// 	random();
-// 	break;
-// }
+	case "do-what-it-says":
+		random();
+	break;
+}
 
 
 /**** node liri.js my-tweets ****/
-
-//function tweets() {};
-if (command.includes("my-tweets")) {
+function tweets() {
 
 	var params = {
 		count:20,
@@ -62,16 +62,15 @@ if (command.includes("my-tweets")) {
 		console.log(tweets);
 
 	});
-}
+};
 
 
 /**** node liri.js spotify-this-song '<song name here>' ****/
 //artist(s), song name, preview link, album
 //default: 'The Sign' by Ace of Base
+function spotifySong(songTitle) {
 
-function spotify(song) {
-
-	spotify.search({ type: 'track', query: song}, function(err, data) {
+	spotify.search({ type: 'track', query: songTitle}, function(err, data) {
 	    if ( err ) {
 	        console.log('Error occurred: ' + err);
 	        return;  //from spotify npm docs
@@ -84,20 +83,17 @@ function spotify(song) {
 	               console.log(track.preview_url)
 	    console.log(song);
 	    };
-	}); //end spotify search
+	});
 
-}; //end spotify function
+};
 
 
 /**** node liri.js movie-this '<movie name here>' ****/
 // Title, year, IMDB rating, rotten tomatoes rating, country produced, lang, plot, actors
 //default: If you haven't watched "Mr. Nobody," then you should: http://www.imdb.com/title/tt0485947/ It's on Netflix!
+function movie(movieTitle) {
 
-// function movie(movieName) {
-
-if (command==="movie-this") {
-
-	var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+	var queryUrl = "http://www.omdbapi.com/?t=" + movieTitle + "&y=&plot=short&apikey=trilogy";
 
 	console.log(queryUrl);
 
@@ -105,10 +101,28 @@ if (command==="movie-this") {
 
 	  // If the request is successful
 	  if (!error && response.statusCode === 200) {
-
-	    console.log("Release Year: " + JSON.parse(body).Year);
-	    //Title, Year, Actors, Plot, Language, Country, Ratings.imdbRating, Ratings.1
+	  	var parse = JSON.parse(body);
+	  	var title = parse.Title;
+	  	var year = parse.Year;
+	  	var actors = parse.Actors;
+	  	var plot = parse.Plot;
+	  	var lang = parse.Language;
+	  	var country = parse.Country;
+	  	var imdbRating = parse.imdbRating;
+	  	var rating = parse.Ratings[1].Value;
+	  	console.log("Title: " + title + "\n" + "Year: " + year + "\n" + "Actors: " + actors + "\n" + "Plot: " + plot + "\n" + "Language: " + lang + "\n" + "Country: " + country + "\n" + "IMDB Rating: " + imdbRating + "\n" + "Rotten Tomatoes Rating: " + JSON.stringify(rating));
 	  }
 	});
+};
+
+function random() {
+	fs.readFile("random.txt", "utf8", function(error,data) {
+		if(error) {
+			return console.log(error);
+		}
+
+		var dataArr = data.split(",");
+		var data = dataArr[1];
+		spotifySong(data);
+	});
 }
-//}; end movie function
