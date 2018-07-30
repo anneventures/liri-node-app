@@ -30,7 +30,7 @@ switch(command) {
 		if (songTitle) {
 			spotifySong(songTitle);
 		} else {
-			spotifySong("The Sign"); //needs to be Ace of Base artist
+			spotifySong("The Sign ace of base");
 		}
 	break;
 
@@ -38,7 +38,7 @@ switch(command) {
 		if (movieTitle) {
 			movie(movieTitle)
 		} else {
-			console.log("If you haven't watched 'Mr. Nobody,' then you should: http://www.imdb.com/title/tt0485947/ It's on Netflix!");
+			console.log("If you haven't watched 'Mr. Nobody,' then you should: http://www.imdb.com/title/tt0485947/" + "\n" + "It's on Netflix!");
 		}
 	break;
 
@@ -52,16 +52,27 @@ switch(command) {
 function tweets() {
 
 	var params = {
+		screen_name: "anneNodes",
 		count:20,
 		exclude_replies:true
 	}
 
-	client.get('statuses/home_timeline', params, function(error, tweets){
-		if(error) throw error;
-		
-		console.log(tweets);
+	client.get('statuses/user_timeline', params, function(error, tweets, response){
+		if(error) {
+			console.log("An error occurred: " + error);
+		} else {
+			console.log("My 20 most recent tweets:");
 
+			for (var i = 0; i < tweets.length; i++) {
+				console.log(tweets[i].text);
+				console.log("Created: " + tweets[i].created_at + "\n");
+
+			}
+	
+		}
+		
 	});
+
 };
 
 
@@ -70,19 +81,23 @@ function tweets() {
 //default: 'The Sign' by Ace of Base
 function spotifySong(songTitle) {
 
-	spotify.search({ type: 'track', query: songTitle}, function(err, data) {
-	    if ( err ) {
-	        console.log('Error occurred: ' + err);
-	        return;  //from spotify npm docs
-	    }
-	    else{
-	    var track = data.tracks.items[0];
-	    var song = console.log(track.artists[0].name)
-	               console.log(track.name)
-	               console.log(track.album.name)
-	               console.log(track.preview_url)
-	    console.log(song);
-	    };
+	spotify.search({ type: 'track', query: songTitle}, function(error, data) {
+	    if (error) {
+	        console.log("An error occured: " + error);
+	    } else {
+
+	    	var track = data.tracks.items[0];
+
+	    	for (var i = 0; i < track.artists.length; i++) {
+
+	    			console.log("Artist: " + track.artists[i].name);
+	    		}
+	    	}
+
+	        console.log("Song: " + track.name);
+	        console.log("Album: " + track.album.name);
+	        console.log("Preview link: " + track.preview_url);
+	
 	});
 
 };
